@@ -52,8 +52,11 @@
 <body>
 
 <h2>Longest Common Subsequence (LCS) Step-by-Step</h2>
-<button onclick="initialSetup()">GO</button>
-<p>Press the button below to see the next step in the LCS calculation.</p>
+<form id="lcsForm">
+    First String: <input type="text" name="first" id="firstString" placeholder="Enter first string">
+    Second String: <input type="text" name="second" id="secondString" placeholder="Enter second string">
+    <button type="submit" id="submitBtn">GO</button>
+</form>
 
 <!-- Button to go to the next step -->
 <button onclick="nextStep()">Next Step</button>
@@ -76,18 +79,35 @@
 <h3>Length of LCS: <span id="lcsLength">0</span></h3>
 
 <script>
-    function initialSetup() {
+    document.getElementById('submitBtn').addEventListener('click', initialSetup);
+    let m;
+    let n;
+    let X;
+    let Y;
+    let dp;
+    let currentStep;
+
+    function initialSetup(e) {
+      e.preventDefault();
+      X = document.getElementById('firstString').value.trim(); // First string
+      Y = document.getElementById('secondString').value.trim(); // Second string
+
+      // Ensure both strings are entered
+      if (X === '' || Y === '') {
+          alert("Please enter both strings.");
+          return;
+      }
+      console.log(X);
+      console.log(Y);
+
+      m = X.length;
+      n = Y.length;
+      dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+      currentStep = 0;
+
        updateDPTable();
     }
-    // Input strings
-    const X = "ABCBDAB";
-    const Y = "BDCABB";
     
-    let m = X.length;
-    let n = Y.length;
-    let dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-    let currentStep = 0;
-
     // Function to update the DP table and show next step
     function nextStep() {
         if (currentStep < m * n) {
