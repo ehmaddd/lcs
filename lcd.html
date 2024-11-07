@@ -52,7 +52,7 @@
 <body>
 
 <h2>Longest Common Subsequence (LCS) Step-by-Step</h2>
-
+<button onclick="initialSetup()">GO</button>
 <p>Press the button below to see the next step in the LCS calculation.</p>
 
 <!-- Button to go to the next step -->
@@ -76,6 +76,9 @@
 <h3>Length of LCS: <span id="lcsLength">0</span></h3>
 
 <script>
+    function initialSetup() {
+       updateDPTable();
+    }
     // Input strings
     const X = "ABCBDAB";
     const Y = "BDCABB";
@@ -159,9 +162,6 @@
             table.appendChild(row);
         }
     }
-
-    // Initialize the table by showing the initial state with all zeros
-    updateDPTable();
 
 </script>
 
