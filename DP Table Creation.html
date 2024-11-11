@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Longest Common Subsequence (LCS)</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        #container {
+            display: flex;
+        }
+        #dpTableWrapper {
+            margin-right: 20px;
+        }
+        #procedurePane {
+            width: 300px;
+            padding: 15px;
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+            margin-left: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        #lcsLength {
+            font-weight: bold;
+        }
+        .highlight-blue {
+            background-color: #cce5ff;
+        }
+        .highlight-green {
+            background-color: #d4edda;
+        }
+        .highlight-orange {
+            background-color: #ffeb99;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Longest Common Subsequence (LCS) Step-by-Step</h2>
+<button onclick="initialSetup()">GO</button>
+<p>Press the button below to see the next step in the LCS calculation.</p>
+
+<!-- Button to go to the next step -->
+<button onclick="nextStep()">Next Step</button>
+
+<!-- Container for the table and the procedure pane -->
+<div id="container">
+    <!-- DP Table -->
+    <div id="dpTableWrapper">
+        <h3>DP Table:</h3>
+        <table id="dpTable"></table>
+    </div>
+
+    <!-- Procedure/Logic Pane -->
+    <div id="procedurePane">
+        <h3>Procedure:</h3>
+        <p id="stepExplanation">Click "Next Step" to see the process.</p>
+    </div>
+</div>
+
+<h3>Length of LCS: <span id="lcsLength">0</span></h3>
+
+<script>
+    function initialSetup() {
+       updateDPTable();
+    }
+    // Input strings
+    const X = "ABCBDAB";
+    const Y = "BDCABB";
+    
+    let m = X.length;
+    let n = Y.length;
+    let dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+    let currentStep = 0;
+
+    // Function to update the DP table and show next step
+    function nextStep() {
+        if (currentStep < m * n) {
+            let i = Math.floor(currentStep / n) + 1;
+            let j = currentStep % n + 1;
+
+            let explanationText = `Step ${currentStep + 1}: Comparing X[${i-1}] = "${X[i-1]}" with Y[${j-1}] = "${Y[j-1]}".`;
+
+            // Calculate the DP table value
+            if (X[i - 1] === Y[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1] + 1;
+                explanationText += ` They match, so dp[${i}][${j}] = dp[${i-1}][${j-1}] + 1 = ${dp[i][j]}.`;
+            } else {
+                dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                explanationText += ` No match, so dp[${i}][${j}] = max(dp[${i-1}][${j}] = ${dp[i-1][j]}, dp[${i}][${j-1}] = ${dp[i][j-1]}) = ${dp[i][j]}.`;
+            }
+
+            // Update the procedure explanation
+            document.getElementById("stepExplanation").textContent = explanationText;
+
+            // Update DP Table display with highlights
+            updateDPTable(i, j);
+
+            // Increment the current step
+            currentStep++;
+        } else {
+            // Once all steps are done, show final LCS length
+            document.getElementById("lcsLength").textContent = dp[m][n];
+            alert("LCS Calculation Complete!");
+        }
+    }
+
+    // Function to update the DP table display with highlights
+    function updateDPTable(highlightRow, highlightCol) {
+        let table = document.getElementById("dpTable");
+        table.innerHTML = ''; // Clear previous table
+        
+        // Create the table headers (first row and first column)
+        let headerRow = document.createElement("tr");
+        headerRow.appendChild(document.createElement("th")); // Top-left cell (empty)
+        for (let j = 0; j < n; j++) {
+            let th = document.createElement("th");
+            th.textContent = Y[j];
+            headerRow.appendChild(th);
+        }
+        table.appendChild(headerRow);
+
+        // Create each row for X characters
+        for (let i = 0; i <= m; i++) {
+            let row = document.createElement("tr");
+            let th = document.createElement("th");
+            if (i > 0) th.textContent = X[i-1]; // Display the character from X
+            row.appendChild(th);
+            for (let j = 0; j <= n; j++) {
+                let cell = document.createElement("td");
+                cell.textContent = dp[i][j];
+
+                // Highlight the relevant cells
+                if (i === highlightRow && j === highlightCol - 1) {
+                    cell.classList.add("highlight-blue"); // Highlight dp[i-1][j] in blue
+                } else if (i === highlightRow - 1 && j === highlightCol) {
+                    cell.classList.add("highlight-green"); // Highlight dp[i][j-1] in green
+                }
+
+                // Highlight the current dp cell in orange
+                if (i === highlightRow && j === highlightCol) {
+                    cell.classList.add("highlight-orange"); // Highlight dp[i][j] in orange
+                }
+
+                row.appendChild(cell);
+            }
+            table.appendChild(row);
+        }
+    }
+
+</script>
+
+</body>
+</html>

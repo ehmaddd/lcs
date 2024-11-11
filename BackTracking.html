@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCS Backtracking</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        td {
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #000;
+        }
+        .highlight {
+            background-color: yellow;
+        }
+        .cellBlue {
+            background-color: lightblue;
+        }
+        .cellGreen {
+            background-color: lightgreen;
+        }
+        .cellOrange {
+            background-color: orange;
+        }
+        #lcsDisplay {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        #stepPanel {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        #container {
+            display: flex;
+        }
+        #dpTableWrapper {
+            margin-right: 20px;
+        }
+        #procedurePane, #lcsPane {
+            width: 300px;
+            padding: 15px;
+            background-color: #f4f4f4;
+            border: 1px solid #ccc;
+            margin-left: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        #lcsLength {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Longest Common Subsequence (LCS) Step-by-Step Visualization</h1>
+
+<p>Enter two strings and click "Start" to see the LCS process!</p>
+
+<label for="stringX">String X: </label>
+<input type="text" id="stringX" placeholder="Enter first string" required>
+<br><br>
+<label for="stringY">String Y: </label>
+<input type="text" id="stringY" placeholder="Enter second string" required>
+<br><br>
+
+<button id="startBtn">Start</button>
+<button id="nextStepBtn" disabled>Next Step</button>
+
+<div id="stepPanel"></div>
+
+<table id="dpTable"></table>
+<div id="lcsDisplay"></div>
+
+<script>
+    let X, Y, m, n, dp, lcs, i, j, steps, currentStep;
+
+    // Function to initialize the DP table and variables
+    function initialize() {
+        X = document.getElementById("stringX").value;
+        Y = document.getElementById("stringY").value;
+        m = X.length;
+        n = Y.length;
+        dp = Array.from(Array(m + 1), () => Array(n + 1).fill(0));
+        lcs = "";
+        i = m;
+        j = n;
+        steps = [];
+        currentStep = 0;
+
+        // Fill DP Table
+        for (let i = 1; i <= m; i++) {
+            for (let j = 1; j <= n; j++) {
+                if (X[i - 1] === Y[j - 1]) {
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                } else {
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                }
+            }
+        }
+    }
+
+    // Create the DP Table in HTML
+    function createTable() {
+        const table = document.getElementById("dpTable");
+        let tableHtml = "<tr><td></td>";
+        for (let j = 0; j < n; j++) {
+            tableHtml += `<td>${Y[j]}</td>`;
+        }
+        tableHtml += "</tr>";
+
+        for (let i = 0; i <= m; i++) {
+            tableHtml += "<tr>";
+            if (i === 0) tableHtml += "<td></td>";
+            else tableHtml += `<td>${X[i - 1]}</td>`;
+            for (let j = 0; j <= n; j++) {
+                tableHtml += `<td id="dp-${i}-${j}">${dp[i][j]}</td>`;
+            }
+            tableHtml += "</tr>";
+        }
+        table.innerHTML = tableHtml;
+    }
+
+    // Backtracking to find the LCS
+    function backtrack() {
+    if (i === 0 || j === 0) return;
+
+    const currentCell = document.getElementById(`dp-${i}-${j}`);
+    
+    if (X[i - 1] === Y[j - 1]) {
+        // Match found: add to LCS
+        steps.push(`Match: X[${i - 1}] = Y[${j - 1}] = "${X[i - 1]}" => Add to LCS.`);
+        lcs = X[i - 1] + lcs;
+
+        // Highlight the two cells being compared (in blue and green)
+        document.getElementById(`dp-${i-1}-${j-1}`).classList.add("cellBlue"); // Highlight X[i-1] in blue
+        document.getElementById(`dp-${i-1}-${j-1}`).classList.add("cellGreen"); // Highlight Y[j-1] in green
+
+        // Now mark the current cell in orange (since it's included in the LCS)
+        document.getElementById(`dp-${i}-${j}`).classList.add("cellOrange");  // Highlight matching cell in orange
+
+        // Move diagonally to the previous characters (top-left)
+        document.getElementById("stepPanel").innerHTML = steps[steps.length - 1];
+        i--;
+        j--;
+    } else {
+        // If no match, compare and move up or left in the table
+        steps.push(`Comparing: X[${i - 1}] = "${X[i - 1]}", Y[${j - 1}] = "${Y[j - 1]}"`);
+        document.getElementById("stepPanel").innerHTML = steps[steps.length - 1];
+
+        // Highlight the two cells being compared (in blue and green)
+        if (dp[i - 1][j] >= dp[i][j - 1]) {
+            document.getElementById(`dp-${i-1}-${j}`).classList.add("cellBlue"); // Highlight cell above in blue
+            document.getElementById(`dp-${i}-${j}`).classList.add("cellGreen"); // Highlight current cell in green
+            i--;
+        } else {
+            document.getElementById(`dp-${i}-${j-1}`).classList.add("cellBlue"); // Highlight cell to the left in blue
+            document.getElementById(`dp-${i}-${j}`).classList.add("cellGreen"); // Highlight current cell in green
+            j--;
+        }
+    }
+}
+
+    // Function for handling the steps
+    function nextStep() {
+        if (currentStep === 0) {
+            createTable();
+            document.getElementById("stepPanel").innerHTML = "Click 'Next Step' to start backtracking.";
+        } else {
+            backtrack();
+        }
+        
+        currentStep++;
+        
+        if (i === 0 || j === 0) {
+            document.getElementById("lcsDisplay").innerText = `LCS: ${lcs}`;
+            document.getElementById("nextStepBtn").disabled = true;
+        }
+    }
+
+    // Event listener for the "Start" button
+    document.getElementById("startBtn").addEventListener("click", function() {
+        initialize();
+        document.getElementById("nextStepBtn").disabled = false;
+        document.getElementById("stepPanel").innerHTML = "Click 'Next Step' to start backtracking.";
+    });
+
+    // Event listener for the "Next Step" button
+    document.getElementById("nextStepBtn").addEventListener("click", nextStep);
+
+</script>
+
+</body>
+</html>
